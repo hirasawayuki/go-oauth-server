@@ -10,7 +10,6 @@ import (
 	"github.com/hirasawayuki/go-oauth-server/handler"
 	"github.com/hirasawayuki/go-oauth-server/registry"
 	"github.com/hirasawayuki/go-oauth-server/repository"
-	"github.com/hirasawayuki/go-oauth-server/service"
 	"github.com/hirasawayuki/go-oauth-server/usecase"
 )
 
