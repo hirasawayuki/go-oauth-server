@@ -6,7 +6,7 @@ import (
 )
 
 type ClientController struct {
-	ClientUsecase usecase.IClientUsecase
+	ClientUsecase usecase.IClientGetUseCase
 }
 type Client struct {
 	ID           int    `json:"id"`
@@ -27,12 +27,16 @@ type IClientController interface {
 
 func (c ClientController) Get(clientID string) GetClientResponseDTO {
 	result := Client{}
-	r, err := c.ClientUsecase.Get(clientID)
+	input := usecase.ClientGetInputDTO{
+		ClientID: clientID,
+	}
+	c, err := c.ClientGetUsecase.Get(input)
+
 	if err != nil {
 		return GetClientResponseDTO{Client: result, Error: errors.Wrap(err, "")}
 	}
 	return GetClientResponseDTO{
-		Client: Client{ID: r.ID, ClientID: r.ClientID, ClientSecret: r.ClientSecret, RedirectURI: r.RedirectURI, Scope: r.Scope},
+		Client: Client{ID: c.ID, ClientID: c.ClientID, ClientSecret: c.ClientSecret, RedirectURI: c.RedirectURI, Scope: c.Scope},
 		Error:  nil,
 	}
 }
