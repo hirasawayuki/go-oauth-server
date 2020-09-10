@@ -11,25 +11,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type connect func() (Store, error)
-
-var DBConfig struct {
-	Host            string
-	Password        string
-	User            string
-	DefaultDatabase string
+type IStores interface {
+	Default() Store
 }
 
 type Store struct {
 	DB *gorm.DB
 }
 
-type IStores interface {
-	Default() Store
-}
-
 func (s Store) Default() Store {
 	return s
+}
+
+var DBConfig struct {
+	Host            string
+	Password        string
+	User            string
+	DefaultDatabase string
 }
 
 func init() {
@@ -51,6 +49,8 @@ func init() {
 	}
 }
 
+type connect func() (Store, error)
+
 func NewMySQLConnection() (Store, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", DBConfig.User, DBConfig.Password, DBConfig.Host, DBConfig.DefaultDatabase))
 	if err != nil {
@@ -70,4 +70,18 @@ func RetryConnect(fnc connect, retry int) (Store, error) {
 		return store, nil
 	}
 	return Store{}, fmt.Errorf("Failed connect to db")
+}
+
+func NewStore() (Store, func(), error) {
+	store, err := RetryConnect(NewMySQLConnection, 10)
+	if err != nil {
+		return Store{}, nil, err
+	}
+
+	cleanup := func() {
+		if store.DB != nil {
+			store.DB.Close()
+		}
+	}
+	return Store{DB: store.DB}, cleanup, nil
 }

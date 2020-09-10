@@ -1,28 +1,20 @@
 package model
 
 type Client struct {
-	id            int    `json:"id"`
-	client_id     string `json:"client_id"`
-	client_secret string `json:"client_secret"`
-	redirect_uri  string `json:"redirect_uri"`
-	scope         string `json:"scope"`
+	id           int
+	clientID     string
+	clientSecret string
+	redirectURI  string
+	scope        string
 }
 
-type ClientDTO struct {
-	ID           int
-	ClientID     string
-	ClientSecret string
-	RedirectURI  string
-	Scope        string
-}
-
-func NewClient(c ClientDTO) Client {
+func NewClient(id int, clientID string, clientSecret string, redirectURI string, scope string) Client {
 	return Client{
-		id:            c.ID,
-		client_id:     c.ClientID,
-		client_secret: c.ClientSecret,
-		redirect_uri:  c.RedirectURI,
-		scope:         c.Scope,
+		id:           id,
+		clientID:     clientID,
+		clientSecret: clientSecret,
+		redirectURI:  redirectURI,
+		scope:        scope,
 	}
 }
 
@@ -31,15 +23,15 @@ func (c Client) ID() int {
 }
 
 func (c Client) ClientID() string {
-	return c.client_id
+	return c.clientID
 }
 
 func (c Client) ClientSecret() string {
-	return c.client_secret
+	return c.clientSecret
 }
 
 func (c Client) RedirectURI() string {
-	return c.redirect_uri
+	return c.redirectURI
 }
 
 func (c Client) Scope() string {

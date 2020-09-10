@@ -6,37 +6,33 @@ import (
 )
 
 type ClientController struct {
-	ClientUsecase usecase.IClientGetUseCase
-}
-type Client struct {
-	ID           int    `json:"id"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	RedirectURI  string `json:"redirect_uri"`
-	Scope        string `json:"scope"`
+	ClientGetUseCase usecase.IClientGetUseCase
 }
 
-type GetClientResponseDTO struct {
+type IClientController interface {
+	Get(clientID string) GetClientResponse
+}
+
+type Client struct {
+	ID           int
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
+	Scope        string
+}
+type GetClientResponse struct {
 	Client Client
 	Error  error
 }
 
-type IClientController interface {
-	Get(clientID string) GetClientResponseDTO
-}
-
-func (c ClientController) Get(clientID string) GetClientResponseDTO {
-	result := Client{}
-	input := usecase.ClientGetInputDTO{
-		ClientID: clientID,
-	}
-	c, err := c.ClientGetUsecase.Get(input)
-
+func (c ClientController) Get(clientID string) GetClientResponse {
+	input := usecase.NewClientGetInputDTO(clientID)
+	client, err := c.ClientGetUseCase.Get(input)
 	if err != nil {
-		return GetClientResponseDTO{Client: result, Error: errors.Wrap(err, "")}
+		return GetClientResponse{Client: Client{}, Error: errors.Wrap(err, "")}
 	}
-	return GetClientResponseDTO{
-		Client: Client{ID: c.ID, ClientID: c.ClientID, ClientSecret: c.ClientSecret, RedirectURI: c.RedirectURI, Scope: c.Scope},
-		Error:  nil,
+	return GetClientResponse{
+		Client: Client{ID: client.ID, ClientID: client.ClientID, ClientSecret: client.ClientSecret, RedirectURI: client.RedirectURI, Scope: client.Scope},
+		Error:  errors.Wrap(err, ""),
 	}
 }

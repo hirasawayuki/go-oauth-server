@@ -1,31 +1,32 @@
 package repository
 
 import (
+	"github.com/hirasawayuki/go-oauth-server/model"
 	"github.com/hirasawayuki/go-oauth-server/registry"
 )
 
+type IClientRepository interface {
+	Find(client_id string) (model.Client, error)
+}
+
 type Client struct {
-	ID           int    `json:"id"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	RedirectURI  string `json:"redirect_uri"`
-	Scope        string `json:"scope"`
+	ID           int    `gorm:"column:id"`
+	ClientID     string `gorm:"column:client_id"`
+	ClientSecret string `gorm:"column:client_secret"`
+	RedirectURI  string `gorm:"column:redirect_uri"`
+	Scope        string `gorm:"column:scope"`
 }
 
 type ClientRepository struct {
 	Store registry.IStores
 }
 
-type IClientRepository interface {
-	Find(client_id string) (*Client, error)
-}
-
-func (r ClientRepository) Find(client_id string) (*Client, error) {
+func (r ClientRepository) Find(client_id string) (model.Client, error) {
 	var client Client
 	client.ClientID = client_id
 	err := r.Store.Default().DB.First(&client).Error
 	if err != nil {
-		return nil, err
+		return model.Client{}, err
 	}
-	return &client, nil
+	return model.NewClient(client.ID, client.ClientID, client.ClientSecret, client.RedirectURI, client.Scope), nil
 }
